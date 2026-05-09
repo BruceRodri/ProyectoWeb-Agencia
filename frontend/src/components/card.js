@@ -90,18 +90,39 @@ class DestinationCard extends LitElement {
       box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
     }
 
-    .card-header {
-      background: linear-gradient(135deg, #1a1a2e, #16213e);
+    .card-image {
+      position: relative;
 
-      padding: 25px 20px;
+      width: 100%;
+      height: 220px;
 
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+      overflow: hidden;
     }
 
-    .card-icon {
-      font-size: 2.5rem;
+    .card-image img {
+      width: 100%;
+      height: 100%;
+
+      object-fit: cover;
+
+      transition: 0.4s;
+    }
+
+    .card:hover .card-image img {
+      transform: scale(1.05);
+    }
+
+    .card-pais {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      background: rgba(0, 0, 0, 0.6);
+      color: white;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: bold;
+      backdrop-filter: blur(5px);
     }
 
     .card-pais {
@@ -208,8 +229,8 @@ class DestinationCard extends LitElement {
   render() {
     return html`
       <div class="card">
-        <div class="card-header">
-          <span class="card-icon"> ${this.tipoIcon(this.destino.tipo)} </span>
+        <div class="card-image">
+          <img src="${this.destino.imagen}" alt="${this.destino.nombre}" />
 
           <span class="card-pais"> 📍 ${this.destino.pais} </span>
         </div>

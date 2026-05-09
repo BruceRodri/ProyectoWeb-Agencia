@@ -9,19 +9,18 @@ class DestinationsPage extends LitElement {
     presupuesto: { type: String },
     tipo: { type: String },
     usuario: { type: Object },
+    destinoSorpresa: { type: Object },
   };
 
   constructor() {
     super();
-
     this.destinos = [];
     this.filtrados = [];
-
     this.clima = "";
     this.presupuesto = "";
     this.tipo = "";
-
     this.usuario = JSON.parse(localStorage.getItem("usuario")) || null;
+    this.destinoSorpresa = null;
   }
 
   connectedCallback() {
@@ -103,6 +102,18 @@ class DestinationsPage extends LitElement {
     } catch (error) {
       console.error("Error al agregar favorito:", error);
     }
+  }
+  sorprender() {
+    if (!this.usuario) {
+      window.location.href = "/login";
+      return;
+    }
+    const aleatorio = Math.floor(Math.random() * this.destinos.length);
+    this.destinoSorpresa = this.destinos[aleatorio];
+  }
+
+  cerrarSorpresa() {
+    this.destinoSorpresa = null;
   }
 
   static styles = css`
@@ -279,8 +290,188 @@ class DestinationsPage extends LitElement {
         padding: 20px;
       }
     }
-  `;
+    .sorpresa-btn-container {
+      max-width: 1200px;
+      margin: 0 auto 10px auto;
+      display: flex;
+      justify-content: center;
+    }
 
+    .btn-sorpresa {
+      padding: 14px 35px;
+      background: linear-gradient(135deg, #f7971e, #ffd200);
+      color: #1a1a2e;
+      border: none;
+      border-radius: 30px;
+      font-size: 1rem;
+      font-weight: 800;
+      cursor: pointer;
+      transition: all 0.3s;
+      box-shadow: 0 5px 20px rgba(247, 151, 30, 0.4);
+      letter-spacing: 0.5px;
+    }
+
+    .btn-sorpresa:hover {
+      transform: translateY(-3px) scale(1.03);
+      box-shadow: 0 8px 25px rgba(247, 151, 30, 0.5);
+    }
+
+    .sorpresa-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      padding: 20px;
+    }
+
+    .sorpresa-card {
+      background: white;
+      border-radius: 24px;
+      overflow: hidden;
+      max-width: 480px;
+      width: 100%;
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.4);
+      animation: popIn 0.3s ease;
+    }
+
+    @keyframes popIn {
+      from {
+        transform: scale(0.8);
+        opacity: 0;
+      }
+      to {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+
+    .sorpresa-header {
+      background: linear-gradient(135deg, #f7971e, #ffd200);
+      padding: 30px;
+      text-align: center;
+    }
+
+    .sorpresa-header p {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: #1a1a2e;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      margin-bottom: 10px;
+    }
+
+    .sorpresa-icon {
+      font-size: 4rem;
+      display: block;
+      margin-bottom: 10px;
+    }
+
+    .sorpresa-header h2 {
+      font-size: 2rem;
+      font-weight: 800;
+      color: #1a1a2e;
+    }
+
+    .sorpresa-body {
+      padding: 25px 30px;
+    }
+
+    .sorpresa-body p {
+      color: #777;
+      font-size: 0.95rem;
+      line-height: 1.7;
+      margin-bottom: 20px;
+    }
+
+    .sorpresa-badges {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 25px;
+    }
+
+    .sorpresa-footer {
+      display: flex;
+      gap: 10px;
+      padding: 0 30px 25px 30px;
+    }
+
+    .btn-otra {
+      flex: 1;
+      padding: 13px;
+      background: #f5f5f5;
+      color: #1a1a2e;
+      border: none;
+      border-radius: 12px;
+      font-size: 0.9rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .btn-otra:hover {
+      background: #eee;
+    }
+
+    .btn-guardar-sorpresa {
+      flex: 1;
+      padding: 13px;
+      background: linear-gradient(135deg, #e94560, #c73652);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-size: 0.9rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .btn-guardar-sorpresa:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(233, 69, 96, 0.4);
+    }
+
+    .btn-cerrar-sorpresa {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      background: rgba(255, 255, 255, 0.2);
+      border: none;
+      color: #1a1a2e;
+      font-size: 1.2rem;
+      cursor: pointer;
+      width: 35px;
+      height: 35px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s;
+    }
+
+    .btn-cerrar-sorpresa:hover {
+      background: rgba(255, 255, 255, 0.4);
+    }
+
+    .sorpresa-header {
+      position: relative;
+    }
+  `;
+  tipoIcon(tipo) {
+    const icons = { playa: "🏖️", ciudad: "🏙️", aventura: "🏔️" };
+    return icons[tipo] || "🌍";
+  }
+
+  presupuestoIcon(presupuesto) {
+    const icons = { bajo: "💰", medio: "💳", alto: "💎" };
+    return icons[presupuesto] || "💰";
+  }
   render() {
     return html`
       <div class="hero">
@@ -337,6 +528,11 @@ class DestinationsPage extends LitElement {
       </div>
 
       <div class="container">
+        <div class="sorpresa-btn-container">
+          <button class="btn-sorpresa" @click=${this.sorprender}>
+            🎲 Sorpréndeme
+          </button>
+        </div>
         <div class="resultados-info">
           Mostrando <span>${this.filtrados.length}</span> destinos
         </div>
@@ -363,6 +559,58 @@ class DestinationsPage extends LitElement {
               )}
         </div>
       </div>
+      ${this.destinoSorpresa
+        ? html`
+            <div class="sorpresa-overlay" @click=${this.cerrarSorpresa}>
+              <div class="sorpresa-card" @click=${(e) => e.stopPropagation()}>
+                <div class="sorpresa-header">
+                  <button
+                    class="btn-cerrar-sorpresa"
+                    @click=${this.cerrarSorpresa}
+                  >
+                    ✕
+                  </button>
+                  <p>🎲 Tu destino sorpresa es</p>
+                  <span class="sorpresa-icon"
+                    >${this.tipoIcon(this.destinoSorpresa.tipo)}</span
+                  >
+                  <h2>${this.destinoSorpresa.nombre}</h2>
+                </div>
+                <div class="sorpresa-body">
+                  <p>${this.destinoSorpresa.descripcion}</p>
+                  <div class="sorpresa-badges">
+                    <span class="badge badge-clima"
+                      >🌡️ ${this.destinoSorpresa.clima}</span
+                    >
+                    <span class="badge badge-presupuesto">
+                      ${this.presupuestoIcon(this.destinoSorpresa.presupuesto)}
+                      ${this.destinoSorpresa.presupuesto}
+                    </span>
+                    <span class="badge badge-tipo">
+                      ${this.tipoIcon(this.destinoSorpresa.tipo)}
+                      ${this.destinoSorpresa.tipo}
+                    </span>
+                    <span class="badge badge-clima"
+                      >📍 ${this.destinoSorpresa.pais}</span
+                    >
+                  </div>
+                </div>
+                <div class="sorpresa-footer">
+                  <button class="btn-otra" @click=${this.sorprender}>
+                    🎲 Otra sorpresa
+                  </button>
+                  <button
+                    class="btn-guardar-sorpresa"
+                    @click=${() =>
+                      this.agregarFavorito(this.destinoSorpresa.id)}
+                  >
+                    ❤️ Guardar favorito
+                  </button>
+                </div>
+              </div>
+            </div>
+          `
+        : ""}
     `;
   }
 }
