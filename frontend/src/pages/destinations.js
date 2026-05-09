@@ -1,4 +1,5 @@
 import { LitElement, html, css } from "lit";
+import "../components/card";
 
 class DestinationsPage extends LitElement {
   static properties = {
@@ -12,11 +13,14 @@ class DestinationsPage extends LitElement {
 
   constructor() {
     super();
+
     this.destinos = [];
     this.filtrados = [];
+
     this.clima = "";
     this.presupuesto = "";
     this.tipo = "";
+
     this.usuario = JSON.parse(localStorage.getItem("usuario")) || null;
   }
 
@@ -29,6 +33,7 @@ class DestinationsPage extends LitElement {
     try {
       const response = await fetch("http://localhost:3000/destinations");
       const data = await response.json();
+
       this.destinos = data;
       this.filtrados = data;
     } catch (error) {
@@ -65,6 +70,7 @@ class DestinationsPage extends LitElement {
     this.clima = "";
     this.presupuesto = "";
     this.tipo = "";
+
     this.filtrados = this.destinos;
   }
 
@@ -78,7 +84,9 @@ class DestinationsPage extends LitElement {
     try {
       const response = await fetch("http://localhost:3000/favorites", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify({
           usuario_id: this.usuario.id,
           destino_id,
@@ -88,7 +96,7 @@ class DestinationsPage extends LitElement {
       const data = await response.json();
 
       if (response.ok) {
-        alert("Agregado a favoritos");
+        alert("❤️ Agregado a favoritos");
       } else {
         alert(data.error);
       }
@@ -108,213 +116,249 @@ class DestinationsPage extends LitElement {
       box-sizing: border-box;
     }
 
-    .container {
-      min-height: 100vh;
-      background-color: #f5f5f5;
-      padding: 40px 20px;
+    .hero {
+      background: linear-gradient(
+        135deg,
+        #1a1a2e 0%,
+        #16213e 50%,
+        #0f3460 100%
+      );
+      padding: 60px 40px;
+      text-align: center;
+      color: white;
     }
 
-    h1 {
-      text-align: center;
-      font-size: 2.5rem;
-      color: #1a1a2e;
+    .hero h1 {
+      font-size: 3rem;
+      font-weight: 800;
       margin-bottom: 10px;
     }
 
-    span {
+    .hero h1 span {
       color: #e94560;
+    }
+
+    .hero p {
+      color: #aaa;
+      font-size: 1.1rem;
     }
 
     .divider {
       width: 80px;
       height: 4px;
       background: #e94560;
-      margin: 0 auto 30px auto;
+      margin: 15px auto;
       border-radius: 10px;
     }
 
-    .filtros {
+    .filtros-section {
+      background: white;
+      padding: 25px 40px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    }
+
+    .filtros-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+
       display: flex;
-      justify-content: center;
+      align-items: center;
       gap: 15px;
       flex-wrap: wrap;
-      margin-bottom: 40px;
+    }
+
+    .filtros-label {
+      font-weight: bold;
+      color: #1a1a2e;
+    }
+
+    .filtro-group {
+      flex: 1;
+      min-width: 150px;
+
+      display: flex;
+      align-items: center;
+      gap: 8px;
+
+      background: #f5f5f5;
+
+      padding: 10px 15px;
+
+      border-radius: 10px;
     }
 
     select {
-      padding: 10px 20px;
-      border: 2px solid #ddd;
-      border-radius: 8px;
-      font-size: 0.95rem;
+      width: 100%;
+      border: none;
       outline: none;
+      background: transparent;
       cursor: pointer;
-      transition: border 0.3s;
-    }
-
-    select:focus {
-      border-color: #e94560;
+      font-size: 0.95rem;
     }
 
     .btn-limpiar {
       padding: 10px 20px;
+      border: none;
+      border-radius: 10px;
+
       background: #e94560;
       color: white;
-      border: none;
-      border-radius: 8px;
-      font-size: 0.95rem;
+
       cursor: pointer;
-      transition: background 0.3s;
+
+      transition: 0.3s;
+
+      font-weight: bold;
     }
 
     .btn-limpiar:hover {
       background: #c73652;
+      transform: translateY(-2px);
+    }
+
+    .container {
+      min-height: 60vh;
+      background: #f5f5f5;
+      padding: 30px 40px 60px;
+    }
+
+    .resultados-info {
+      max-width: 1200px;
+      margin: 0 auto;
+      color: #777;
+    }
+
+    .resultados-info span {
+      color: #e94560;
+      font-weight: bold;
     }
 
     .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-      gap: 25px;
       max-width: 1200px;
-      margin: 0 auto;
-    }
+      margin: 25px auto 0;
 
-    .card {
-      background: white;
-      border-radius: 12px;
-      overflow: hidden;
-      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-      transition: all 0.3s ease;
-    }
-
-    .card:hover {
-      transform: translateY(-8px);
-      box-shadow: 0 12px 25px rgba(0, 0, 0, 0.2);
-    }
-
-    .card-body {
-      padding: 20px;
-    }
-
-    .card-body h3 {
-      font-size: 1.3rem;
-      color: #1a1a2e;
-      margin-bottom: 8px;
-    }
-
-    .card-body p {
-      color: #666;
-      font-size: 0.95rem;
-      margin-bottom: 12px;
-      line-height: 1.6;
-    }
-
-    .badges {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-      margin-bottom: 15px;
-    }
-
-    .badge {
-      background: #1a1a2e;
-      color: white;
-      padding: 4px 12px;
-      border-radius: 20px;
-      font-size: 0.8rem;
-    }
-
-    .badge.presupuesto {
-      background: #e94560;
-    }
-
-    .badge.tipo {
-      background: #0083b0;
-    }
-
-    .btn-favorito {
-      width: 100%;
-      padding: 10px;
-      background: #1a1a2e;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      font-size: 0.9rem;
-      cursor: pointer;
-      transition: background 0.3s;
-    }
-
-    .btn-favorito:hover {
-      background: #e94560;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 25px;
     }
 
     .no-resultados {
-      text-align: center;
-      color: #666;
-      font-size: 1.1rem;
-      margin-top: 40px;
       grid-column: 1 / -1;
+      text-align: center;
+      padding: 60px 20px;
+    }
+
+    .no-resultados p {
+      font-size: 3rem;
+      margin-bottom: 15px;
+    }
+
+    .no-resultados h3 {
+      color: #1a1a2e;
+      margin-bottom: 10px;
+    }
+
+    .no-resultados span {
+      color: #777;
+    }
+
+    @media (max-width: 768px) {
+      .hero {
+        padding: 40px 20px;
+      }
+
+      .hero h1 {
+        font-size: 2rem;
+      }
+
+      .filtros-section {
+        padding: 20px;
+      }
+
+      .container {
+        padding: 20px;
+      }
     }
   `;
 
   render() {
     return html`
-      <div class="container">
-        <h1>Destinos <span>Turísticos</span></h1>
+      <div class="hero">
+        <h1>Explora <span>Destinos</span></h1>
+
         <div class="divider"></div>
 
-        <div class="filtros">
-          <select .value=${this.clima} @change=${this.handleClima}>
-            <option value="">Todos los climas</option>
-            <option value="cálido">Cálido</option>
-            <option value="frío">Frío</option>
-          </select>
+        <p>Encuentra el lugar perfecto para tu próximo viaje</p>
+      </div>
 
-          <select .value=${this.presupuesto} @change=${this.handlePresupuesto}>
-            <option value="">Todos los presupuestos</option>
-            <option value="bajo">Bajo</option>
-            <option value="medio">Medio</option>
-            <option value="alto">Alto</option>
-          </select>
+      <div class="filtros-section">
+        <div class="filtros-inner">
+          <span class="filtros-label">🔍 Filtrar:</span>
 
-          <select .value=${this.tipo} @change=${this.handleTipo}>
-            <option value="">Todos los tipos</option>
-            <option value="playa">Playa</option>
-            <option value="ciudad">Ciudad</option>
-            <option value="aventura">Aventura</option>
-          </select>
+          <div class="filtro-group">
+            <span>🌡️</span>
+
+            <select .value=${this.clima} @change=${this.handleClima}>
+              <option value="">Todos los climas</option>
+              <option value="cálido">Cálido</option>
+              <option value="frío">Frío</option>
+            </select>
+          </div>
+
+          <div class="filtro-group">
+            <span>💰</span>
+
+            <select
+              .value=${this.presupuesto}
+              @change=${this.handlePresupuesto}
+            >
+              <option value="">Todos los presupuestos</option>
+              <option value="bajo">Bajo</option>
+              <option value="medio">Medio</option>
+              <option value="alto">Alto</option>
+            </select>
+          </div>
+
+          <div class="filtro-group">
+            <span>🗺️</span>
+
+            <select .value=${this.tipo} @change=${this.handleTipo}>
+              <option value="">Todos los tipos</option>
+              <option value="playa">Playa</option>
+              <option value="ciudad">Ciudad</option>
+              <option value="aventura">Aventura</option>
+            </select>
+          </div>
 
           <button class="btn-limpiar" @click=${this.limpiarFiltros}>
             Limpiar filtros
           </button>
         </div>
+      </div>
+
+      <div class="container">
+        <div class="resultados-info">
+          Mostrando <span>${this.filtrados.length}</span> destinos
+        </div>
 
         <div class="grid">
           ${this.filtrados.length === 0
-            ? html`<p class="no-resultados">
-                No hay destinos con esos filtros
-              </p>`
+            ? html`
+                <div class="no-resultados">
+                  <p>😕</p>
+
+                  <h3>No hay destinos con esos filtros</h3>
+
+                  <span>Intenta con otras opciones</span>
+                </div>
+              `
             : this.filtrados.map(
                 (destino) => html`
-                  <div class="card">
-                    <div class="card-body">
-                      <h3>${destino.nombre}</h3>
-                      <p>${destino.descripcion}</p>
-                      <div class="badges">
-                        <span class="badge">${destino.pais}</span>
-                        <span class="badge">${destino.clima}</span>
-                        <span class="badge presupuesto"
-                          >${destino.presupuesto}</span
-                        >
-                        <span class="badge tipo">${destino.tipo}</span>
-                      </div>
-                      <button
-                        class="btn-favorito"
-                        @click=${() => this.agregarFavorito(destino.id)}
-                      >
-                        ❤️ Guardar en favoritos
-                      </button>
-                    </div>
-                  </div>
+                  <destination-card
+                    .destino=${destino}
+                    @favorito=${() => this.agregarFavorito(destino.id)}
+                  >
+                  </destination-card>
                 `,
               )}
         </div>
@@ -322,4 +366,5 @@ class DestinationsPage extends LitElement {
     `;
   }
 }
+
 customElements.define("mi-destinations", DestinationsPage);
