@@ -5,4 +5,5 @@ import "./pages/home.js";
 import "./pages/login.js";
 import "./pages/register.js";
 import "./pages/dashboard.js";
+import "./pages/test.js";
 import "./router/router.js";

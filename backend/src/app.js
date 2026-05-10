@@ -5,6 +5,7 @@ const { conectar } = require("./config/db");
 const destinosRouter = require("./routes/destinations");
 const authRouter = require("./routes/auth");
 const favoritesRouter = require("./routes/favorites");
+const reservasRouter = require("./routes/reservations");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -16,6 +17,7 @@ app.use(express.json());
 app.use("/destinations", destinosRouter);
 app.use("/auth", authRouter);
 app.use("/favorites", favoritesRouter);
+app.use("/reservations", reservasRouter);
 // Iniciar servidor
 conectar().then(() => {
   console.log("Rutas cargadas");

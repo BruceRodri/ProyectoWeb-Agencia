@@ -25,6 +25,10 @@ router.setRoutes([
     path: "/dashboard",
     component: "dashboard-page",
   },
+  {
+    path: "/test",
+    component: "test-page",
+  },
   { path: "(.*)", redirect: "/" },
 ]);
 

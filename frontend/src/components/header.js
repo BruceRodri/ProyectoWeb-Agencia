@@ -326,13 +326,12 @@ class Header extends LitElement {
                       : ""}"
                   >
                     <a href="/dashboard" @click=${this.cerrarDropdown}>
-                      ❤️ Mis favoritos
+                      Mi Cuenta
                     </a>
-
+                    <a href="/test">¿Qué viajero eres?</a>
                     <div class="divider-nav"></div>
-
                     <button class="logout-btn" @click=${this.cerrarSesion}>
-                      🚪 Cerrar sesión
+                      Cerrar sesión
                     </button>
                   </div>
                 </div>
