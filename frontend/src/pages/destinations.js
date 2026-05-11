@@ -132,69 +132,26 @@ class DestinationsPage extends LitElement {
     this.destinoSorpresa = null;
   }
 
-  // MODAL RESERVA
-  abrirModalReserva(destino) {
-    if (!this.usuario) {
-      alert("Debes iniciar sesión para reservar");
-      window.location.href = "/login";
-      return;
-    }
+  // MODAL RESERVA (ESTO CONECTA LA SORPRESA CON LA CARD PARA REUTILIZAR EL PAGO)
+  abrirReservaDesdeSorpresa(destino) {
+    // Cerramos la ventana de sorpresa
+    this.cerrarSorpresa();
 
-    this.destinoReserva = destino;
-    this.modalAbierto = true;
-  }
+    // Buscamos la card en el grid o creamos una temporal para disparar su modal de pago
+    const tempCard = document.createElement("destination-card");
+    tempCard.destino = destino;
+    this.renderRoot.appendChild(tempCard);
 
-  cerrarModal() {
-    this.modalAbierto = false;
-    this.destinoReserva = null;
-  }
-
-  async handleReserva() {
-    const fecha_entrada = this.renderRoot.querySelector("#fecha_entrada").value;
-
-    const fecha_salida = this.renderRoot.querySelector("#fecha_salida").value;
-
-    const personas = this.renderRoot.querySelector("#personas").value;
-
-    const tipo_habitacion =
-      this.renderRoot.querySelector("#tipo_habitacion").value;
-
-    const peticiones = this.renderRoot.querySelector("#peticiones").value;
-
-    if (!fecha_entrada || !fecha_salida || !personas || !tipo_habitacion) {
-      alert("Completa todos los campos obligatorios");
-      return;
-    }
-
-    try {
-      const response = await fetch("http://localhost:3000/reservations", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          usuario_id: this.usuario.id,
-          destino_id: this.destinoReserva.id,
-          fecha_entrada,
-          fecha_salida,
-          personas,
-          tipo_habitacion,
-          peticiones,
-        }),
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        alert("✈️ Reserva realizada correctamente");
-        this.cerrarModal();
-        this.cerrarSorpresa();
-      } else {
-        alert(data.error);
-      }
-    } catch (error) {
-      console.error("Error al reservar:", error);
-    }
+    tempCard.updateComplete.then(() => {
+      tempCard.abrirModal();
+      // Limpiar elemento temporal al cerrar modal
+      const checkClosed = setInterval(() => {
+        if (!tempCard.modalAbierto) {
+          tempCard.remove();
+          clearInterval(checkClosed);
+        }
+      }, 500);
+    });
   }
 
   tipoIcon(tipo) {
@@ -291,7 +248,7 @@ class DestinationsPage extends LitElement {
       box-shadow: 0 15px 40px rgba(0, 0, 0, 0.08);
     }
 
-    .filtros-title {
+    .filtros-label {
       width: 100%;
       font-size: 1.2rem;
       font-weight: 800;
@@ -332,10 +289,6 @@ class DestinationsPage extends LitElement {
     .filtro-group:hover {
       border-color: #e94560;
       background: white;
-    }
-
-    .filtro-group span {
-      font-size: 1.1rem;
     }
 
     .filtro-group select {
@@ -403,30 +356,6 @@ class DestinationsPage extends LitElement {
       gap: 28px;
     }
 
-    /* NO RESULTADOS */
-
-    .no-resultados {
-      grid-column: 1 / -1;
-
-      text-align: center;
-      padding: 70px 20px;
-    }
-
-    .no-resultados p {
-      font-size: 4rem;
-      margin-bottom: 15px;
-    }
-
-    .no-resultados h3 {
-      color: #1a1a2e;
-      margin-bottom: 10px;
-      font-size: 1.5rem;
-    }
-
-    .no-resultados span {
-      color: #777;
-    }
-
     /* BOTON SORPRESA */
 
     .sorpresa-btn-container {
@@ -461,8 +390,7 @@ class DestinationsPage extends LitElement {
 
     /* MODALES */
 
-    .sorpresa-overlay,
-    .modal-overlay {
+    .sorpresa-overlay {
       position: fixed;
       inset: 0;
 
@@ -476,8 +404,7 @@ class DestinationsPage extends LitElement {
       padding: 20px;
     }
 
-    .sorpresa-card,
-    .modal {
+    .sorpresa-card {
       width: 100%;
       max-width: 520px;
 
@@ -523,10 +450,13 @@ class DestinationsPage extends LitElement {
       color: #1a1a2e;
     }
 
-    .sorpresa-icon {
-      font-size: 4rem;
-      display: block;
-      margin-bottom: 10px;
+    /* ESTILO PARA LA IMAGEN EN LA SORPRESA */
+    .sorpresa-media img {
+      width: 100%;
+      border-radius: 12px;
+      margin-top: 10px;
+      max-height: 200px;
+      object-fit: cover;
     }
 
     .sorpresa-body {
@@ -577,18 +507,13 @@ class DestinationsPage extends LitElement {
     }
 
     .btn-otra,
-    .btn-guardar-sorpresa,
     .btn-reservar {
       flex: 1;
-
       padding: 14px;
-
       border: none;
       border-radius: 14px;
-
       font-weight: 700;
       cursor: pointer;
-
       transition: all 0.3s ease;
     }
 
@@ -596,235 +521,77 @@ class DestinationsPage extends LitElement {
       background: #f1f1f1;
     }
 
-    .btn-guardar-sorpresa {
-      background: linear-gradient(135deg, #e94560, #c73652);
-      color: white;
-    }
-
     .btn-reservar {
       background: linear-gradient(135deg, #28a745, #20c997);
       color: white;
     }
 
-    .btn-otra:hover,
-    .btn-guardar-sorpresa:hover,
-    .btn-reservar:hover {
-      transform: translateY(-2px);
-    }
-
-    .btn-cerrar-sorpresa,
-    .btn-cerrar-modal {
+    .btn-cerrar-sorpresa {
       position: absolute;
       top: 15px;
       right: 15px;
-
       width: 38px;
       height: 38px;
-
       border-radius: 50%;
       border: none;
-
       cursor: pointer;
-
-      font-size: 1rem;
       font-weight: bold;
-
       background: rgba(255, 255, 255, 0.3);
-    }
-
-    /* MODAL */
-
-    .modal-header {
-      background: linear-gradient(135deg, #1a1a2e, #16213e);
-
-      color: white;
-
-      padding: 25px;
-
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-
-      position: relative;
-    }
-
-    .modal-header h3 {
-      margin-bottom: 5px;
-      font-size: 1.4rem;
-    }
-
-    .modal-body {
-      padding: 25px;
-    }
-
-    .form-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 16px;
-    }
-
-    .form-group {
-      margin-bottom: 18px;
-    }
-
-    .form-group label {
-      display: block;
-
-      margin-bottom: 8px;
-
-      font-weight: 700;
-      color: #1a1a2e;
-    }
-
-    .required {
-      color: #e94560;
-    }
-
-    input,
-    textarea,
-    select {
-      width: 100%;
-
-      padding: 13px;
-
-      border-radius: 14px;
-      border: 2px solid #ececec;
-
-      outline: none;
-
-      font-size: 0.95rem;
-
-      transition: all 0.3s ease;
-    }
-
-    input:focus,
-    textarea:focus,
-    select:focus {
-      border-color: #e94560;
-    }
-
-    textarea {
-      resize: none;
-      min-height: 100px;
-    }
-
-    .modal-footer {
-      padding: 0 25px 25px;
-
-      display: flex;
-      gap: 12px;
-    }
-
-    .btn-cancelar,
-    .btn-confirmar {
-      flex: 1;
-
-      padding: 14px;
-
-      border: none;
-      border-radius: 14px;
-
-      font-weight: 700;
-
-      cursor: pointer;
-    }
-
-    .btn-cancelar {
-      background: #f1f1f1;
-    }
-
-    .btn-confirmar {
-      background: linear-gradient(135deg, #28a745, #20c997);
-      color: white;
-    }
-
-    /* RESPONSIVE */
-
-    @media (max-width: 768px) {
-      .hero {
-        padding: 50px 20px;
-      }
-
-      .hero h1 {
-        font-size: 2.2rem;
-      }
-
-      .container {
-        padding: 10px 20px 50px;
-      }
-
-      .filtros-inner {
-        padding: 20px;
-      }
-
-      .form-row {
-        grid-template-columns: 1fr;
-      }
-
-      .modal-footer,
-      .sorpresa-footer {
-        flex-direction: column;
-      }
     }
   `;
 
   render() {
     return html`
       <div class="hero">
-        <h1>Explora <span>Destinos</span></h1>
-
+        <h1>EXPLORA <span>DESTINOS</span></h1>
         <div class="divider"></div>
-
         <p>Encuentra el lugar perfecto para tu próximo viaje</p>
       </div>
 
       <div class="filtros-section">
         <div class="filtros-inner">
-          <span class="filtros-label">🔍 Filtrar:</span>
+          <span class="filtros-label">🔍 FILTRAR:</span>
 
           <div class="filtro-wrapper">
-            <label>🌡️ Clima</label>
-
+            <label>🌡️ CLIMA</label>
             <div class="filtro-group">
               <select .value=${this.clima} @change=${this.handleClima}>
-                <option value="">Todos</option>
-                <option value="cálido">Cálido</option>
-                <option value="frío">Frío</option>
+                <option value="">TODOS</option>
+                <option value="cálido">CÁLIDO</option>
+                <option value="frío">FRÍO</option>
               </select>
             </div>
           </div>
 
           <div class="filtro-wrapper">
-            <label>💰 Presupuesto</label>
-
+            <label>💰 PRESUPUESTO</label>
             <div class="filtro-group">
               <select
                 .value=${this.presupuesto}
                 @change=${this.handlePresupuesto}
               >
-                <option value="">Todos</option>
-                <option value="bajo">Bajo</option>
-                <option value="medio">Medio</option>
-                <option value="alto">Alto</option>
+                <option value="">TODOS</option>
+                <option value="bajo">BAJO</option>
+                <option value="medio">MEDIO</option>
+                <option value="alto">ALTO</option>
               </select>
             </div>
           </div>
 
           <div class="filtro-wrapper">
-            <label>🗺️ Tipo</label>
-
+            <label>🗺️ TIPO</label>
             <div class="filtro-group">
               <select .value=${this.tipo} @change=${this.handleTipo}>
-                <option value="">Todos</option>
-                <option value="playa">Playa</option>
-                <option value="ciudad">Ciudad</option>
-                <option value="aventura">Aventura</option>
+                <option value="">TODOS</option>
+                <option value="playa">PLAYA</option>
+                <option value="ciudad">CIUDAD</option>
+                <option value="aventura">AVENTURA</option>
               </select>
             </div>
           </div>
 
           <button class="btn-limpiar" @click=${this.limpiarFiltros}>
-            Limpiar filtros
+            LIMPIAR FILTROS
           </button>
         </div>
       </div>
@@ -832,14 +599,12 @@ class DestinationsPage extends LitElement {
       <div class="container">
         <div class="sorpresa-btn-container">
           <button class="btn-sorpresa" @click=${this.sorprender}>
-            🎲 Sorpréndeme
+            🎲 SORPRÉNDEME
           </button>
         </div>
 
         <div class="resultados-info">
-          Mostrando
-          <span>${this.filtrados.length}</span>
-          destinos
+          Mostrando <span>${this.filtrados.length}</span> destinos
         </div>
 
         <div class="grid">
@@ -866,12 +631,15 @@ class DestinationsPage extends LitElement {
                   >
                     ✕
                   </button>
+                  <p>🎲 TU DESTINO SORPRESA ES</p>
 
-                  <p>🎲 Tu destino sorpresa es</p>
-
-                  <span class="sorpresa-icon">
-                    ${this.tipoIcon(this.destinoSorpresa.tipo)}
-                  </span>
+                  <!-- IMAGEN CORREGIDA AQUÍ -->
+                  <div class="sorpresa-media">
+                    <img
+                      src="${this.destinoSorpresa.imagen}"
+                      alt="${this.destinoSorpresa.nombre}"
+                    />
+                  </div>
 
                   <h2>${this.destinoSorpresa.nombre}</h2>
                 </div>
@@ -880,15 +648,13 @@ class DestinationsPage extends LitElement {
                   <p>${this.destinoSorpresa.descripcion}</p>
 
                   <div class="sorpresa-badges">
-                    <span class="badge badge-clima">
-                      🌡️ ${this.destinoSorpresa.clima}
-                    </span>
-
+                    <span class="badge badge-clima"
+                      >🌡️ ${this.destinoSorpresa.clima}</span
+                    >
                     <span class="badge badge-presupuesto">
                       ${this.presupuestoIcon(this.destinoSorpresa.presupuesto)}
                       ${this.destinoSorpresa.presupuesto}
                     </span>
-
                     <span class="badge badge-tipo">
                       ${this.tipoIcon(this.destinoSorpresa.tipo)}
                       ${this.destinoSorpresa.tipo}
@@ -898,118 +664,16 @@ class DestinationsPage extends LitElement {
 
                 <div class="sorpresa-footer">
                   <button class="btn-otra" @click=${this.sorprender}>
-                    🎲 Otra sorpresa
+                    🎲 OTRA SORPRESA
                   </button>
 
-                  <button
-                    class="btn-guardar-sorpresa"
-                    @click=${() =>
-                      this.agregarFavorito(this.destinoSorpresa.id)}
-                  >
-                    ❤️ Favorito
-                  </button>
-
+                  <!-- VINCULACIÓN AL MODAL DE PAGO CORREGIDA AQUÍ -->
                   <button
                     class="btn-reservar"
-                    @click=${() => this.abrirModalReserva(this.destinoSorpresa)}
+                    @click=${() =>
+                      this.abrirReservaDesdeSorpresa(this.destinoSorpresa)}
                   >
-                    ✈️ Reservar
-                  </button>
-                </div>
-              </div>
-            </div>
-          `
-        : ""}
-      ${this.modalAbierto
-        ? html`
-            <div class="modal-overlay" @click=${this.cerrarModal}>
-              <div class="modal" @click=${(e) => e.stopPropagation()}>
-                <div class="modal-header">
-                  <div>
-                    <h3>✈️ Reservar en ${this.destinoReserva.nombre}</h3>
-
-                    <p>📍 ${this.destinoReserva.pais}</p>
-                  </div>
-
-                  <button class="btn-cerrar-modal" @click=${this.cerrarModal}>
-                    ✕
-                  </button>
-                </div>
-
-                <div class="modal-body">
-                  <div class="form-row">
-                    <div class="form-group">
-                      <label>
-                        Fecha de entrada
-                        <span class="required">*</span>
-                      </label>
-
-                      <input type="date" id="fecha_entrada" />
-                    </div>
-
-                    <div class="form-group">
-                      <label>
-                        Fecha de salida
-                        <span class="required">*</span>
-                      </label>
-
-                      <input type="date" id="fecha_salida" />
-                    </div>
-                  </div>
-
-                  <div class="form-row">
-                    <div class="form-group">
-                      <label>
-                        Número de personas
-                        <span class="required">*</span>
-                      </label>
-
-                      <input
-                        type="number"
-                        id="personas"
-                        min="1"
-                        max="20"
-                        placeholder="1"
-                      />
-                    </div>
-
-                    <div class="form-group">
-                      <label>
-                        Tipo de habitación
-                        <span class="required">*</span>
-                      </label>
-
-                      <select id="tipo_habitacion">
-                        <option value="">Selecciona</option>
-
-                        <option value="individual">Individual</option>
-
-                        <option value="doble">Doble</option>
-
-                        <option value="suite">Suite</option>
-
-                        <option value="familiar">Familiar</option>
-                      </select>
-                    </div>
-                  </div>
-
-                  <div class="form-group">
-                    <label> Peticiones especiales </label>
-
-                    <textarea
-                      id="peticiones"
-                      placeholder="Ej: habitación con vista al mar..."
-                    ></textarea>
-                  </div>
-                </div>
-
-                <div class="modal-footer">
-                  <button class="btn-cancelar" @click=${this.cerrarModal}>
-                    Cancelar
-                  </button>
-
-                  <button class="btn-confirmar" @click=${this.handleReserva}>
-                    ✈️ Confirmar reserva
+                    ✈️ RESERVAR
                   </button>
                 </div>
               </div>

@@ -359,7 +359,7 @@ class Header extends LitElement {
 
         ${this.usuario
           ? html`
-              <a href="/dashboard"> ❤️ Mis favoritos </a>
+              <a href="/dashboard"> Mi cuenta </a>
 
               <button @click=${this.cerrarSesion}>🚪 Cerrar sesión</button>
             `

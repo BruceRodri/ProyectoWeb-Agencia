@@ -477,7 +477,7 @@ class TestPage extends LitElement {
                     <button class="btn-reiniciar" @click=${this.reiniciar}>
                       🔄 Repetir test
                     </button>
-                    <a class="btn-explorar" href="/destinos">
+                    <a class="btn-explorar" href="/destinations">
                       🌍 Explorar destinos
                     </a>
                   </div>

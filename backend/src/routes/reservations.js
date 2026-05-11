@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const { sql } = require("../config/db");
 
-// POST /reservas — crear reserva
+// POST /reservas — crear reserva ACTUALIZADO
 router.post("/", async (req, res) => {
   const {
     usuario_id,
@@ -11,18 +11,22 @@ router.post("/", async (req, res) => {
     fecha_salida,
     personas,
     tipo_habitacion,
-    peticiones,
+    total_pago, // NUEVO
+    metodo_pago, // NUEVO
   } = req.body;
 
   try {
+    // ASEGÚRATE DE INCLUIR LOS NUEVOS CAMPOS EN EL INSERT
     await sql.query`
-      INSERT INTO reservas (usuario_id, destino_id, fecha_entrada, fecha_salida, personas, tipo_habitacion, peticiones)
-      VALUES (${usuario_id}, ${destino_id}, ${fecha_entrada}, ${fecha_salida}, ${personas}, ${tipo_habitacion}, ${peticiones})
+      INSERT INTO reservas (usuario_id, destino_id, fecha_entrada, fecha_salida, personas, tipo_habitacion, total_pago, metodo_pago)
+      VALUES (${usuario_id}, ${destino_id}, ${fecha_entrada}, ${fecha_salida}, ${personas}, ${tipo_habitacion},  ${total_pago}, ${metodo_pago})
     `;
-    res.json({ message: "Reserva realizada correctamente" });
+    res.json({ message: "RESERVA REALIZADA Y REGISTRADA CORRECTAMENTE" });
   } catch (error) {
-    console.error("Error al realizar la reserva:", error);
-    res.status(500).json({ error: "Error al realizar la reserva" });
+    console.error("ERROR AL REALIZAR LA RESERVA:", error);
+    res
+      .status(500)
+      .json({ error: "ERROR AL REALIZAR LA RESERVA EN EL SERVIDOR" });
   }
 });
 
